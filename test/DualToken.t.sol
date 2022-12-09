@@ -60,7 +60,7 @@ contract DualTokenTest is Test {
         address operator = address(0x420);
 
         vm.prank(alice);
-        parent.setApprovalForAll(operator, true);
+        child.approve(operator, 1);
 
         // This isn't entirely ERC20 compliant, you can approve all or nothing.
         assertEq(child.allowance(alice, operator), type(uint256).max);
@@ -76,6 +76,34 @@ contract DualTokenTest is Test {
 
         vm.prank(alice);
         child.transfer(to, 69 ether);
+
+        // Alice should have 69 less tokens...
+        assertEq(parent.balanceOf(alice, id), 0);
+        assertEq(child.balanceOf(alice), 0);
+
+        // Recipient should have 69 more tokens...
+        assertEq(parent.balanceOf(to, id), 69 ether);
+        assertEq(child.balanceOf(to), 69 ether);
+    }
+
+    function testTransferFrom() public {
+        parent.mint(alice, id, 69 ether);
+
+        address to = address(0x420);
+
+        assertEq(parent.balanceOf(alice, id), 69 ether);
+        assertEq(child.balanceOf(alice), 69 ether);
+
+        vm.prank(to);
+        // Should revert due to lack of approval.
+        vm.expectRevert();
+        child.transferFrom(alice, to, 69 ether);
+
+        vm.prank(alice);
+        child.approve(to, 1);
+
+        vm.prank(to);
+        child.transferFrom(alice, to, 69 ether);
 
         // Alice should have 69 less tokens...
         assertEq(parent.balanceOf(alice, id), 0);
