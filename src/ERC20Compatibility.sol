@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "solbase/tokens/ERC1155/ERC1155.sol";
+import "./DualToken.sol";
 
 /// @notice This contract enables ERC20 functionality for ERC1155 tokens that track supply.
 abstract contract ERC20Compatibility {
@@ -16,20 +16,10 @@ abstract contract ERC20Compatibility {
     uint8 public immutable decimals;
 
     /// -----------------------------------------------------------------------
-    /// ERC20 Storage
-    /// -----------------------------------------------------------------------
-
-    uint256 public totalSupply;
-
-    mapping(address => uint256) public balanceOf;
-
-    mapping(address => mapping(address => uint256)) public allowance;
-
-    /// -----------------------------------------------------------------------
     /// ERC20 Compatibility Storage
     /// -----------------------------------------------------------------------
 
-    ERC1155 public immutable parent;
+    DualToken public immutable parent;
 
     uint256 public immutable id;
 
@@ -48,7 +38,7 @@ abstract contract ERC20Compatibility {
         symbol = _symbol;
         decimals = _decimals;
 
-        parent = ERC1155(_parent);
+        parent = DualToken(_parent);
         id = _id;
     }
 
@@ -56,11 +46,31 @@ abstract contract ERC20Compatibility {
     /// ERC20 Compatibility Logic
     /// -----------------------------------------------------------------------
 
+    function totalSupply() external view returns (uint256) {
+        return parent.totalSupply(id);
+    }
+
+    function balanceOf(address account) external view returns (uint256) {
+        return parent.balanceOf(account, id);
+    }
+
+    function allowance(address account, address spender)
+        external
+        view
+        returns (uint256)
+    {
+        return parent.isApprovedForAll(account, spender) ? type(uint256).max : 0;
+    }
+
     function approve(address spender, uint256 amount)
         public
         virtual
         returns (bool)
-    {}
+    {
+        parent.setApprovalForAllInternal(msg.sender, spender, amount > 0);
+
+        return true;
+    }
 
     function transfer(address to, uint256 amount)
         public
