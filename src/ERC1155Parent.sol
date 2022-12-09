@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: WTFPL
 pragma solidity ^0.8.13;
 
-import "./ERC1155Supply.sol";
+import "./lib/ERC1155Supply.sol";
 
 abstract contract ERC1155Parent is ERC1155Supply {
     function safeTransferFromInternal(
