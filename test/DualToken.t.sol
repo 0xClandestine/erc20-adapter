@@ -40,4 +40,24 @@ contract DualTokenTest is Test {
         parent = new MockERC1155Parent();
         child = new MockERC20Child(address(parent), id);
     }
+
+    function testTotalSupply() public {
+
+        address alice = address(0xAAAA);
+
+        parent.mint(alice, id, 69 ether);
+
+        assertEq(parent.totalSupply(id), 69 ether);
+        assertEq(child.totalSupply(), 69 ether);
+    }
+
+    function testBalanceOf() public {
+
+        address alice = address(0xAAAA);
+
+        parent.mint(alice, id, 69 ether);
+
+        assertEq(parent.balanceOf(alice, id), 69 ether);
+        assertEq(child.balanceOf(alice), 69 ether);
+    }
 }
