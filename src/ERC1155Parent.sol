@@ -1,10 +1,9 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: WTFPL
 pragma solidity ^0.8.13;
 
 import "./ERC1155Supply.sol";
 
-contract DualToken is ERC1155Supply {
-
+abstract contract ERC1155Parent is ERC1155Supply {
     function safeTransferFromInternal(
         address sender,
         address from,
@@ -14,8 +13,9 @@ contract DualToken is ERC1155Supply {
     ) public virtual {
         // TODO: access control
 
-        if (sender != from)
+        if (sender != from) {
             if (!isApprovedForAll[from][sender]) revert Unauthorized();
+        }
 
         balanceOf[from][id] -= amount;
         balanceOf[to][id] += amount;
@@ -24,7 +24,6 @@ contract DualToken is ERC1155Supply {
 
         if (to == address(0)) revert InvalidRecipient();
     }
-
 
     function setApprovalForAllInternal(
         address account,
@@ -36,19 +35,5 @@ contract DualToken is ERC1155Supply {
         isApprovedForAll[account][operator] = approved;
 
         emit ApprovalForAll(account, operator, approved);
-    }
-
-    /// -----------------------------------------------------------------------
-    /// Metadata Logic
-    /// -----------------------------------------------------------------------
-
-    function uri(uint256 id)
-        public
-        view
-        virtual
-        override
-        returns (string memory)
-    {
-        return "";
     }
 }

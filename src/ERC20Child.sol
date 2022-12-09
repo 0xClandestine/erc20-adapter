@@ -1,10 +1,9 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: WTFPL
 pragma solidity ^0.8.13;
 
-import "./DualToken.sol";
+import "./ERC1155Parent.sol";
 
-/// @notice This contract enables ERC20 functionality for ERC1155 tokens that track supply.
-abstract contract ERC20Compatibility {
+abstract contract ERC20Child {
     /// -----------------------------------------------------------------------
     /// Metadata Storage
     /// -----------------------------------------------------------------------
@@ -19,7 +18,7 @@ abstract contract ERC20Compatibility {
     /// ERC20 Compatibility Storage
     /// -----------------------------------------------------------------------
 
-    DualToken public immutable parent;
+    ERC1155Parent public immutable parent;
 
     uint256 public immutable id;
 
@@ -38,7 +37,7 @@ abstract contract ERC20Compatibility {
         symbol = _symbol;
         decimals = _decimals;
 
-        parent = DualToken(_parent);
+        parent = ERC1155Parent(_parent);
         id = _id;
     }
 
