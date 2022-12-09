@@ -5,6 +5,14 @@ import "./ERC1155Parent.sol";
 
 abstract contract ERC20Child {
     /// -----------------------------------------------------------------------
+    /// Events
+    /// -----------------------------------------------------------------------
+
+    event Transfer(address indexed from, address indexed to, uint256 amount);
+
+    event Approval(address indexed owner, address indexed spender, uint256 amount);
+
+    /// -----------------------------------------------------------------------
     /// Metadata Storage
     /// -----------------------------------------------------------------------
 
@@ -68,7 +76,11 @@ abstract contract ERC20Child {
         virtual
         returns (bool)
     {
-        parent.setApprovalForAllInternal(msg.sender, spender, amount > 0);
+        bool approved = amount > 0;
+
+        parent.setApprovalForAllInternal(msg.sender, spender, approved);
+
+        emit Approval(msg.sender, spender, approved ? type(uint256).max : 0);
 
         return true;
     }
@@ -80,6 +92,8 @@ abstract contract ERC20Child {
     {
         parent.safeTransferFromInternal(msg.sender, msg.sender, to, id, amount);
 
+        emit Transfer(msg.sender, to, amount);
+
         return true;
     }
 
@@ -89,6 +103,8 @@ abstract contract ERC20Child {
         returns (bool)
     {
         parent.safeTransferFromInternal(msg.sender, from, to, id, amount);
+
+        emit Transfer(from, to, amount);
 
         return true;
     }
