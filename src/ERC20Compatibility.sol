@@ -54,6 +54,7 @@ abstract contract ERC20Compatibility {
         return parent.balanceOf(account, id);
     }
 
+    /// @dev This is not ERC20 compliant. You can approve all or nothing.
     function allowance(address account, address spender)
         external
         view
@@ -62,6 +63,7 @@ abstract contract ERC20Compatibility {
         return parent.isApprovedForAll(account, spender) ? type(uint256).max : 0;
     }
 
+    /// @dev This is not ERC20 compliant. You can approve all or nothing.
     function approve(address spender, uint256 amount)
         public
         virtual
@@ -76,11 +78,19 @@ abstract contract ERC20Compatibility {
         public
         virtual
         returns (bool)
-    {}
+    {
+        parent.safeTransferFromInternal(msg.sender, msg.sender, to, id, amount);
+
+        return true;
+    }
 
     function transferFrom(address from, address to, uint256 amount)
         public
         virtual
         returns (bool)
-    {}
+    {
+        parent.safeTransferFromInternal(msg.sender, from, to, id, amount);
+
+        return true;
+    }
 }
