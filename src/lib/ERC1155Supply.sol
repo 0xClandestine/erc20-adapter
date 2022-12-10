@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: WTFPL
 pragma solidity ^0.8.13;
 
-import "solbase/tokens/ERC1155/ERC1155.sol";
+import {ERC1155} from "solbase/tokens/ERC1155/ERC1155.sol";
+import {ERC1155TokenReceiver} from "solbase/tokens/ERC1155/ERC1155.sol";
 
 /// @notice ERC1155 token + supply tracking.
 abstract contract ERC1155Supply is ERC1155 {

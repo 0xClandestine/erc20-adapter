@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: WTFPL
 pragma solidity ^0.8.13;
 
-import "solbase/utils/LibClone.sol";
+import {LibClone} from "solbase/utils/LibClone.sol";
 
-import "./lib/ERC1155Supply.sol";
-import "./ERC20Child.sol";
+import {ERC1155Supply} from "./lib/ERC1155Supply.sol";
+import {ERC20Child} from "./ERC20Child.sol";
 
 abstract contract ERC1155Parent is ERC1155Supply {
     /// -----------------------------------------------------------------------
