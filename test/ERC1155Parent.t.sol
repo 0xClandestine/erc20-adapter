@@ -111,9 +111,7 @@ contract DualTokenTest is Test {
         assertEq(child.balanceOf(to), 69 ether);
     }
 
-    function testIsChild() public {
-
-        
-
+    function testIsChild(uint256 _id) public {
+        assertEq(parent.create(_id), parent.predictDeterministicAddress(_id));
     }
 }

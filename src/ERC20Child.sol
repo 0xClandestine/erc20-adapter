@@ -98,4 +98,28 @@ contract ERC20Child is Clone {
 
         return true;
     }
+
+    /// -----------------------------------------------------------------------
+    /// ERC20 Compatibility Hooks
+    /// -----------------------------------------------------------------------
+
+    error Unauthorized();
+
+    function transferHook(address from, address to, uint256 amount)
+        external
+        virtual
+    {
+        if (msg.sender != address(parent())) revert Unauthorized();
+
+        emit Transfer(from, to, amount);
+    }
+
+    function approveHook(address owner, address spender, uint256 amount)
+        external
+        virtual
+    {
+        if (msg.sender != address(parent())) revert Unauthorized();
+
+        emit Approval(owner, spender, amount);
+    }
 }
