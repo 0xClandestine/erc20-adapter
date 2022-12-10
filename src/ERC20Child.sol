@@ -1,52 +1,41 @@
 // SPDX-License-Identifier: WTFPL
 pragma solidity ^0.8.13;
 
+import "solbase/utils/Clone.sol";
+
 import "./ERC1155Parent.sol";
 
-abstract contract ERC20Child {
+contract ERC20Child is Clone {
     /// -----------------------------------------------------------------------
     /// Events
     /// -----------------------------------------------------------------------
 
     event Transfer(address indexed from, address indexed to, uint256 amount);
 
-    event Approval(address indexed owner, address indexed spender, uint256 amount);
+    event Approval(
+        address indexed owner, address indexed spender, uint256 amount
+    );
 
     /// -----------------------------------------------------------------------
     /// Metadata Storage
     /// -----------------------------------------------------------------------
 
-    string public name;
+    string public constant name = "FOO";
 
-    string public symbol;
+    string public constant symbol = "BAR";
 
-    uint8 public immutable decimals;
+    uint8 public constant decimals = 18;
 
     /// -----------------------------------------------------------------------
     /// ERC20 Compatibility Storage
     /// -----------------------------------------------------------------------
 
-    ERC1155Parent public immutable parent;
+    function parent() public pure returns (ERC1155Parent) {
+        return ERC1155Parent(_getArgAddress(12));
+    }
 
-    uint256 public immutable id;
-
-    /// -----------------------------------------------------------------------
-    /// Constructor
-    /// -----------------------------------------------------------------------
-
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        uint8 _decimals,
-        address _parent,
-        uint256 _id
-    ) {
-        name = _name;
-        symbol = _symbol;
-        decimals = _decimals;
-
-        parent = ERC1155Parent(_parent);
-        id = _id;
+    function id() public pure returns (uint256) {
+        return _getArgUint256(32);
     }
 
     /// -----------------------------------------------------------------------
@@ -54,11 +43,11 @@ abstract contract ERC20Child {
     /// -----------------------------------------------------------------------
 
     function totalSupply() external view returns (uint256) {
-        return parent.totalSupply(id);
+        return parent().totalSupply(id());
     }
 
     function balanceOf(address account) external view returns (uint256) {
-        return parent.balanceOf(account, id);
+        return parent().balanceOf(account, id());
     }
 
     /// @dev This is not ERC20 compliant. You can approve all or nothing.
@@ -67,7 +56,8 @@ abstract contract ERC20Child {
         view
         returns (uint256)
     {
-        return parent.isApprovedForAll(account, spender) ? type(uint256).max : 0;
+        return
+            parent().isApprovedForAll(account, spender) ? type(uint256).max : 0;
     }
 
     /// @dev This is not ERC20 compliant. You can approve all or nothing.
@@ -78,7 +68,7 @@ abstract contract ERC20Child {
     {
         bool approved = amount > 0;
 
-        parent.setApprovalForAllInternal(msg.sender, spender, approved);
+        parent().setApprovalForAllHook(id(), msg.sender, spender, approved);
 
         emit Approval(msg.sender, spender, approved ? type(uint256).max : 0);
 
@@ -90,7 +80,7 @@ abstract contract ERC20Child {
         virtual
         returns (bool)
     {
-        parent.safeTransferFromInternal(msg.sender, msg.sender, to, id, amount);
+        parent().safeTransferFromHook(msg.sender, msg.sender, to, id(), amount);
 
         emit Transfer(msg.sender, to, amount);
 
@@ -102,7 +92,7 @@ abstract contract ERC20Child {
         virtual
         returns (bool)
     {
-        parent.safeTransferFromInternal(msg.sender, from, to, id, amount);
+        parent().safeTransferFromHook(msg.sender, from, to, id(), amount);
 
         emit Transfer(from, to, amount);
 

@@ -5,12 +5,6 @@ import "forge-std/Test.sol";
 import {ERC20Child} from "../src/ERC20Child.sol";
 import {ERC1155Parent} from "../src/ERC1155Parent.sol";
 
-contract MockERC20Child is ERC20Child {
-    constructor(address _parent, uint256 _id)
-        ERC20Child("Mock name", "Mock symbol", 18, _parent, _id)
-    {}
-}
-
 contract MockERC1155Parent is ERC1155Parent {
     function mint(address account, uint256 id, uint256 amount) external {
         _mint(account, id, amount, new bytes(0));
@@ -33,13 +27,16 @@ contract MockERC1155Parent is ERC1155Parent {
 
 contract DualTokenTest is Test {
     MockERC1155Parent parent;
-    MockERC20Child child;
+    ERC20Child child;
     uint256 constant id = 420;
     address constant alice = address(0xAAAA);
 
     function setUp() public {
         parent = new MockERC1155Parent();
-        child = new MockERC20Child(address(parent), id);
+        child = ERC20Child(parent.create(id));
+
+        vm.label(address(parent), "parent");
+        vm.label(address(child), "child");
     }
 
     function testTotalSupply() public {
@@ -112,5 +109,11 @@ contract DualTokenTest is Test {
         // Recipient should have 69 more tokens...
         assertEq(parent.balanceOf(to, id), 69 ether);
         assertEq(child.balanceOf(to), 69 ether);
+    }
+
+    function testIsChild() public {
+
+        
+
     }
 }
